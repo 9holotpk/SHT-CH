@@ -3,9 +3,10 @@
 // UPDATE:  13/06/2018  - Copy Add-On from SHT-FF ver. 1.3.1
 //                      - Edit and Optimize for Opera Add-On.
 //          14/06/2018  - Optimize update and Bug fixed.
+//          26/11/2018  - Update API and Changed URL Link.
 
 // API
-const API_KEY = 'AIzaSyASAQzCena-R-4DQUwDIosyLeNl68C7p0k';
+const API_KEY = 'AIzaSyAW2mkBOlTqr2BZcgRjOkwGEibWa2aICT4';
 const API_URL = 'https://firebasedynamiclinks.googleapis.com/v1/shortLinks';
 
 let TAB_URL = '';
@@ -23,13 +24,10 @@ function onError(error) {
 }
 
 function shortenLink(link, title) {
-  // const basename = "https://www.googleapis.com";
-  // const urlfrag = "/urlshortener/v1/url?key=" + API_KEY;
   const basename = "https://firebasedynamiclinks.googleapis.com";
   const urlfrag = "/v1/shortLinks?key=" + API_KEY;
-  // const longUrl = encodeURIComponent(link);
-  const longDynamicLink = link;
-  const dynamicLinkDomain = 'dh3p7.app.goo.gl';
+  const dynamicLinkDomain = 'isn.page.link';
+
   const xhr = new XMLHttpRequest();
 
   xhr.open("POST", basename + urlfrag, true);
