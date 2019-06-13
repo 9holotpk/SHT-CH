@@ -3,6 +3,7 @@
 // UPDATE:  13/06/2018  - Copy Add-On from SHT-FF ver. 1.3.1
 //                      - Edit and Optimize for Opera Add-On.
 //          14/06/2018  - Optimize update and Bug fixed.
+//          12/06/2019  - Add QR code.
 
 
 // # Event
@@ -10,6 +11,8 @@ document.getElementById('optionsX').addEventListener('click', show_options);
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('tag').addEventListener('click', save_optionsX);
 document.getElementById('sharebt').addEventListener('click', save_optionsX);
+document.getElementById('qrcbt').addEventListener('click', save_optionsX);
+
 
 // # Value
 let w_hashtags = "&hashtags=iShortener";
@@ -25,7 +28,7 @@ function onGot(page) {
     if (TAB_URL) {
       let URL_RES = TAB_URL.substring(0, 4);
       if (URL_RES === 'http') {
-        chrome.runtime.sendMessage({script: "shortenLink", tab_url: TAB_URL, title: TITLE});
+        chrome.runtime.sendMessage({ script: "shortenLink", tab_url: TAB_URL, title: TITLE });
       } else {
         let load = document.getElementById("loading");
         let faq = document.getElementById("faq");
@@ -44,26 +47,27 @@ function onGot(page) {
 chrome.runtime.onMessage.addListener(
   function (request, sender) {
     let resultSht = request;
-    if(resultSht.shortLink){
+    if (resultSht.shortLink) {
       setURLshorten(resultSht.shortLink, resultSht.title);
     }
   }
 );
 
-function restore_options() { 
+function restore_options() {
   let manifestData = chrome.runtime.getManifest();
   let version = document.getElementById('version');
-  chrome.storage.local.get(['twitterTag','sharebutton'], function(result){
+  chrome.storage.local.get(['twitterTag', 'sharebutton','qrcode'], function (result) {
     onGotX(result);
   });
 
   version.textContent = '「 ver. ' + manifestData.version + ' 」';
-  
+
 }
 
 function onGotX(items) {
   let tag = document.getElementById('tag');
   let sharebt = document.getElementById('sharebt');
+  let qrcbt = document.getElementById('qrcbt');
   if (items.twitterTag) {
     tag.checked = items.twitterTag.value;
     if (items.twitterTag.value == true) {
@@ -84,9 +88,19 @@ function onGotX(items) {
     }
   } else {
     sharebt.checked = true;
-  }    
+  }
+  if (items.qrcode) {
+    qrcbt.checked = items.qrcode.value;
+    let show_qrc = document.getElementById('qrcX');
+    if (items.qrcode.value) {
+      show_qrc.style.display = "block";
+    } else {
+      show_qrc.style.display = "none";
+    }
+  } else {
+    qrcbt.checked = true;
+  }
 }
-
 
 function setURLshorten(shtURL, title) {
   let input = document.getElementById("url");
@@ -96,7 +110,17 @@ function setURLshorten(shtURL, title) {
     input.value = shtURL;
     copy();
     share(shtURL, title);
+    genQRC(shtURL);
   }
+}
+
+function genQRC(url) {
+  var canvas = document.getElementById("qrcode-canvas");
+  var QRC = qrcodegen.QrCode;
+  var qr0 = QRC.encodeText(url, QRC.Ecc.MEDIUM);
+  var scale = 5;
+  qr0.drawCanvas(scale, 1, canvas);
+  canvas.style.removeProperty("display");
 }
 
 function copy() {
@@ -130,17 +154,26 @@ function share(shtURL, title_o) {
 
 function show_options() {
   var x = document.getElementById("myDIV");
-    if (x.style.display === "none") {
-        x.style.display = "block";
-    } else {
-        x.style.display = "none";
-    }
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
 }
 
 function save_optionsX() {
   let tag = document.getElementById('tag').checked;
   let sharebt = document.getElementById('sharebt').checked;
   let show_button = document.getElementById('shareX');
+  let qrcbt = document.getElementById('qrcbt').checked;
+  let show_qrc = document.getElementById('qrcX');
+
+
+  if (qrcbt) {
+    show_qrc.style.display = "block";
+  } else {
+    show_qrc.style.display = "none";
+  }
 
   if (sharebt) {
     show_button.style.display = "block";
@@ -156,8 +189,13 @@ function save_optionsX() {
     name: "Facebook, Twitter",
     value: sharebt,
   }
+  var qrcode = {
+    name: "QR Code",
+    value: qrcbt,
+  }
+
   // store the objects
-  chrome.storage.local.set({'twitterTag': twitterTag, 'sharebutton': sharebutton}, function(){
+  chrome.storage.local.set({ 'twitterTag': twitterTag, 'sharebutton': sharebutton, 'qrcode': qrcode }, function () {
     // console.log('Save');
   });
 }
