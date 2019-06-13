@@ -5,8 +5,13 @@ UPDATE:  13/06/2018     - Copy Add-On from SHT-FF ver. 1.3.1
           14/06/2018    - Optimize update and Bug fixed.
           26/11/2018    - Update #url #bodyPopup input size */
 
+.darkmode .result {
+    background-color: darkgray;
+    border:3px solid darkgray;
+}
+
 .options {
-    font: 1em sans-serif; 
+    font: 0.8em sans-serif; 
     color: rgb(165, 164, 164);
     cursor: pointer;
 }
@@ -14,16 +19,25 @@ UPDATE:  13/06/2018     - Copy Add-On from SHT-FF ver. 1.3.1
     color: rgb(0, 0, 0);
     text-decoration-line: underline;
 }
+.darkmode .options:hover{
+    color: rgb(242, 245, 247);
+    text-decoration-line: underline;
+}
 
 .textOption {
-    font: 1em sans-serif; 
+    font: 0.8em sans-serif; 
     color: rgb(85, 85, 85);
+    cursor: pointer;
+}
+.darkmode .textOption {
+    font: 0.8em sans-serif; 
+    color: rgb(255, 255, 255);
     cursor: pointer;
 }
 
 .textOptionHelp {
-    font: 0.9em sans-serif; 
-    color: rgb(185, 57, 57);
+    font: 0.7em sans-serif; 
+    color: rgb(220,70,48);
 }
 
 .border {
@@ -36,7 +50,7 @@ UPDATE:  13/06/2018     - Copy Add-On from SHT-FF ver. 1.3.1
 }
 
 #bodyPopup {
-    width: 16em;
+    width: 15em;
 }
 
 #shareX {
@@ -45,4 +59,8 @@ UPDATE:  13/06/2018     - Copy Add-On from SHT-FF ver. 1.3.1
 
 #url {
     width: 12em;
+}
+
+.darkmode {
+    background-color:rgb(33,33,33);
 }
