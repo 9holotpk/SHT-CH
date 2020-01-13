@@ -6,7 +6,7 @@
 //          26/11/2018  - Update API and Changed URL Link.
 
 // API
-const API_KEY = 'AIzaSyAW2mkBOlTqr2BZcgRjOkwGEibWa2aICT4';
+const API_KEY = 'AIzaSyCe-IvcYVtNQcw6IBx-458N34Hgw0ulyFk';
 const API_URL = 'https://firebasedynamiclinks.googleapis.com/v1/shortLinks';
 
 let TAB_URL = '';
@@ -19,6 +19,21 @@ chrome.runtime.onMessage.addListener(function (request) {
   }
 });
 
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+    chrome.declarativeContent.onPageChanged.addRules([
+      {
+        conditions: [
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { schemes: ['https', 'http'] }
+          })
+        ],
+        actions: [ new chrome.declarativeContent.ShowPageAction() ]
+      }
+    ]);
+  });
+});
+
 function onError(error) {
   console.log(`Error: ${error}`);
 }
@@ -26,7 +41,7 @@ function onError(error) {
 function shortenLink(link, title) {
   const basename = "https://firebasedynamiclinks.googleapis.com";
   const urlfrag = "/v1/shortLinks?key=" + API_KEY;
-  const dynamicLinkDomain = 'isn.page.link';
+  const dynamicLinkDomain = 'ishr.site';
 
   const xhr = new XMLHttpRequest();
 
@@ -50,4 +65,5 @@ function shortenLink(link, title) {
     }
   }));
 }
+
 

@@ -37,6 +37,7 @@ function onGot(page) {
         document.getElementById("noURL").style.display = "block";
         document.getElementById("shareX").style.display = "none";
         document.getElementById("qrcX").style.display = "none";
+        document.getElementById("dnt").style.display = "none";
       }
     }
   });
@@ -50,6 +51,20 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+function checkDNT() {
+  console.log('doNotTrack', window.navigator.doNotTrack);
+  // alert("doNotTrack");
+  let dnt = window.navigator.doNotTrack;
+  if (dnt == "1") {
+    // document.getElementById("shareX").style.display = "none";
+    document.getElementById("dnt").style.display = "block";
+    document.getElementById("shareY").style.display = "none";
+  } else {
+    document.getElementById("shareY").style.display = "block";
+    document.getElementById("dnt").style.display = "none";
+  }
+}
 
 function restore_options() {
   let manifestData = chrome.runtime.getManifest();
@@ -148,6 +163,7 @@ function hide() {
 
   load.style.display = "none";
   complete.style.display = "inline";
+  checkDNT();
 }
 
 function share(shtURL, title_o) {
