@@ -1,5 +1,4 @@
 {
-    "update_url": "https://clients2.google.com/service/update2/crx",
     "author": "9holotpk",
     "background": {
         "scripts": ["background.js"],
@@ -37,5 +36,5 @@
         "declarativeContent"
     ],
     "short_name": "iShortener",
-    "version": "1.9"
+    "version": "3"
 }

@@ -4,10 +4,9 @@
 //                      - Edit and Optimize for Opera Add-On.
 //          14/06/2018  - Optimize update and Bug fixed.
 //          26/11/2018  - Update API and Changed URL Link.
+//          16/05/2020  - Update API with Firebase and Changed Domain Link.
 
 // API
-const API_KEY = 'AIzaSyCe-IvcYVtNQcw6IBx-458N34Hgw0ulyFk';
-const API_URL = 'https://firebasedynamiclinks.googleapis.com/v1/shortLinks';
 
 let TAB_URL = '';
 let TITLE = '';
@@ -39,31 +38,39 @@ function onError(error) {
 }
 
 function shortenLink(link, title) {
-  const basename = "https://firebasedynamiclinks.googleapis.com";
-  const urlfrag = "/v1/shortLinks?key=" + API_KEY;
-  const dynamicLinkDomain = 'ishr.site';
+  const longDynamicLink = link;
+  const urlKey = "https://us-central1-url-shortener-x.cloudfunctions.net/getKey";
 
-  const xhr = new XMLHttpRequest();
+  function reqListener() {
+    const api = JSON.parse(this.responseText);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", api.key, true);
 
-  xhr.open("POST", basename + urlfrag, true);
-  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-      const response = (JSON.parse(xhr.responseText));
-      chrome.runtime.sendMessage({shortLink: response.shortLink, title: title});
-    }
-  };
+    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        const response = (JSON.parse(xhr.responseText));
+        chrome.runtime.sendMessage({ shortLink: response.shortLink, title: title, longLink: link });
+      }
+    };
 
-  // xhr.send(JSON.stringify({ "longUrl": link }));
-  xhr.send(JSON.stringify({
-    "dynamicLinkInfo": {
-      "dynamicLinkDomain": dynamicLinkDomain,
-      "link": link
-    },
-    "suffix": {
-      "option": "SHORT"
-    }
-  }));
+    // xhr.send(JSON.stringify({ "longUrl": link }));
+    xhr.send(JSON.stringify({
+      "dynamicLinkInfo": {
+        "dynamicLinkDomain": api.domain,
+        "link": longDynamicLink
+      },
+      "suffix": {
+        "option": "SHORT"
+      }
+    }));
+  }
+
+  const oReq = new XMLHttpRequest();
+  oReq.addEventListener("load", reqListener);
+  oReq.open("GET", urlKey);
+  oReq.send();
+
 }
 
 
