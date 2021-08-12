@@ -25,7 +25,6 @@ function onGot() {
   chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
     TAB_URL = tabs[0].url;
     TITLE = tabs[0].title;
-    // console.log('Page: (' + tabs[0].id + ') ' + TITLE);
     if (TAB_URL) {
       let URL_RES = TAB_URL.substring(0, 4);
       if (URL_RES === "http") {
@@ -153,18 +152,25 @@ function onGotX(items) {
 
 function setURLshorten(shtURL, title, LgURL) {
   let input = document.getElementById("url");
-  if (shtURL != undefined) {
+  if (shtURL && shtURL != undefined && shtURL.includes("https")) {
+    const shtURLcut = shtURL.slice(8);
     hide();
-    input.value = shtURL;
+    input.value = shtURLcut;
     if (copy_now) {
       copy();
     }
     if (share_now) {
       document.getElementById("shareY").style.display = "block";
     }
-    share(shtURL, title, LgURL);
+    share(shtURLcut, title, LgURL);
     genQRC(shtURL);
     input.blur();
+  } else {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("faq").style.display = "inline";
+    document.getElementById("errorservice").style.display = "block";
+    document.getElementById("shareY").style.display = "none";
+    document.getElementById("qrcX").style.display = "none";
   }
 }
 

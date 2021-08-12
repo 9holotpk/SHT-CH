@@ -1,161 +1,179 @@
 /* 
 DEV. EXTENTION BY iTON => STYLE
 NOTE:    Click to Shorten URL
+UPDATE: 26/11/2018  - Update #url #bodyPopup input size.
+        13/06/2019  - Add dark mode.
 */
 
 body {
-    width: 250px;
+  width: 250px;
 }
 
 #input {
-    text-align: center;
-    align-content: center;
-    justify-content: center;
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+}
+
+input.short-url {
+  font-family: consolas, "Liberation Mono", courier, monospace !important;
 }
 
 .darkmode .result {
- background-color: darkgray;
- border:3px solid darkgray;
+  background-color: darkgray;
+  border: 3px solid darkgray;
 }
 
 .options {
-    /* font: 0.8em sans-serif;  */
-    color: rgb(165, 164, 164);
-    cursor: pointer;
+  color: rgb(165, 164, 164);
+  cursor: pointer;
 }
-.options:hover{
-    color: rgb(0, 0, 0);
-    text-decoration-line: underline;
+.options:hover {
+  color: rgb(0, 0, 0);
+  /* text-decoration-line: underline; */
 }
-.darkmode .options:hover{
-    color: rgb(242, 245, 247);
-    text-decoration-line: underline;
-}
-
-.textOption {
-    font: 0.8em sans-serif; 
-    color: rgb(85, 85, 85);
-    cursor: pointer;
-}
-.darkmode .textOption {
-    font: 0.8em sans-serif; 
-    color: rgb(255, 255, 255);
-    cursor: pointer;
+.darkmode .options:hover {
+  color: rgb(242, 245, 247);
+  text-decoration-line: underline;
 }
 
 .darkmode small {
-    color: rgb(206, 206, 206);
+  color: rgb(206, 206, 206);
 }
 
 .darkmode .card {
-    background-color: rgb(0, 0, 0) !important;
+  background-color: rgb(0, 0, 0) !important;
 }
 
 .darkmode .spinner-border {
-    color: rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
 }
 
 .darkmode hr {
-    border-color: rgb(182, 182, 182);
-}
-
-.textOptionHelp {
-    font: 0.7em sans-serif; 
-    color: rgb(220,70,48);
+  border-color: rgb(182, 182, 182);
 }
 
 .border {
-    border: 1px #e1e4e8 solid !important;
-    border-radius: 5px;
+  border: 1px #e1e4e8 solid !important;
+  border-radius: 5px;
 }
 
 /* .version {
-    font: 0.75em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: gray;
-} */
+      font: 0.75em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: gray;
+  } */
 
 /* #shareX {
-    height: 2em;
-} */
+      height: 2em;
+  } */
 
 #url {
-    width: 12em;
+  width: 12em;
 }
 
 .darkmode {
-    background-color:rgb(33,33,33);
+  background-color: rgb(33, 33, 33);
 }
 
 svg path,
-svg rect{
+svg rect {
   fill: rgb(19, 18, 18);
 }
 
 .darkmode svg path,
-svg rect{
+svg rect {
   fill: rgb(247, 247, 247);
 }
 
 #my-icon .circle {
-	animation: circle-animation 0.5s ease-out forwards;
-	opacity: 0;
-	transform: scale(0.9);
-	transform-origin: center;
+  animation: circle-animation 0.5s ease-out forwards;
+  opacity: 0;
+  transform: scale(0.9);
+  transform-origin: center;
 }
 
 @keyframes circle-animation {
-	100% {
-		opacity: 1;
-		transform: scale(1);
-	}
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 #my-icon .checkmark {
-	animation: checkmark-animation 1s ease-out forwards;
-	stroke-dasharray: 400;
-	stroke-dashoffset: 400;
-	stroke: #cfd8dc;
-	transform-origin: center;
+  animation: checkmark-animation 1s ease-out forwards;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  stroke: #cfd8dc;
+  transform-origin: center;
 }
 
 @keyframes checkmark-animation {
-	40% {
-		transform: scale(1);
-	}
-	55% {
-		stroke: #cfd8dc;
-		transform: scale(1.2);
-	}
-	70% {
-		transform: scale(1);
-	}
-	100% {
-		stroke-dashoffset: 0;
-		transform: scale(1);
-		stroke: #21b587;
-	}
+  40% {
+    transform: scale(1);
+  }
+  55% {
+    stroke: #cfd8dc;
+    transform: scale(1.2);
+  }
+  70% {
+    transform: scale(1);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    transform: scale(1);
+    stroke: #21b587;
+  }
 }
 
 input {
-    border-radius: 5px;
-    background-color: lightgrey;
-    border:3px solid lightgrey;
+  border-radius: 5px;
+  background-color: lightgrey;
+  border: 3px solid lightgrey;
 }
 
 .input_h {
-    width: 60%;
+  width: 60%;
 }
 
 /* .shareY {
-    padding: 5px;
-    margin-right: 5px;
-    text-align: center;
-    align-content: center;
-    justify-content: center;
-    
-} */
+      padding: 5px;
+      margin-right: 5px;
+      text-align: center;
+      align-content: center;
+      justify-content: center;
+      
+  } */
 
 .cur-pointer {
-    cursor: pointer;
-    color: blue !important;
+  cursor: pointer;
+}
+
+.cur-pointer:hover .copy-ready {
+  display: none;
+}
+
+.cur-pointer .copy-on {
+  display: none;
+}
+
+.cur-pointer:hover .copy-on {
+  display: inline;
+}
+
+a.share-to-facebook:hover {
+  color: rgb(24, 119, 242) !important;
+}
+
+a.share-to-facebook:hover svg path,
+svg rect {
+  fill: rgb(24, 119, 242) !important;
+}
+
+a.share-to-twitter:hover {
+  color: rgb(29, 155, 240) !important;
+}
+
+a.share-to-twitter:hover svg path,
+svg rect {
+  fill: rgb(29, 155, 240) !important;
 }
