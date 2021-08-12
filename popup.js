@@ -1,63 +1,61 @@
 // DEV. EXTENTION BY iTON // => POPUP.JS
-// NOTE:    Click to Shorten URL
-// UPDATE:  13/06/2018  - Copy Add-On from SHT-FF ver. 1.3.1
-//                      - Edit and Optimize for Opera Add-On.
-//          14/06/2018  - Optimize update and Bug fixed.
-//          12/06/2019  - Add QR code.
-//          13/06/2019  - Add Dark Mode.
-
+// NOTE: Click to Shorten URL
 
 // # Event
-document.getElementById('optionsX').addEventListener('click', show_options);
-document.addEventListener('DOMContentLoaded', restore_options);
-document.getElementById('tag').addEventListener('click', save_optionsX);
-document.getElementById('sharebt').addEventListener('click', save_optionsX);
-document.getElementById('qrcbt').addEventListener('click', save_optionsX);
-document.getElementById('darkmode').addEventListener('click', save_optionsX);
-
+document.getElementById("optionsX").addEventListener("click", show_options);
+document.addEventListener("DOMContentLoaded", restore_options);
+document.getElementById("tag").addEventListener("click", save_optionsX);
+document.getElementById("sharebt").addEventListener("click", save_optionsX);
+document.getElementById("qrcbt").addEventListener("click", save_optionsX);
+document.getElementById("darkmode").addEventListener("click", save_optionsX);
+document.getElementById("hashtag").addEventListener("keyup", save_optionsX);
+document.getElementById("atcopy").addEventListener("click", save_optionsX);
+document.getElementById("complete").addEventListener("click", copy);
+document.getElementById("copped").addEventListener("click", copy);
 
 // # Value
 let w_hashtags = "&hashtags=iShortener";
+let copy_now = false;
+let share_now = false;
 
 // # Onload
 onGot();
 
-function onGot(page) {
-  chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tabs) {
+function onGot() {
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
     TAB_URL = tabs[0].url;
     TITLE = tabs[0].title;
     // console.log('Page: (' + tabs[0].id + ') ' + TITLE);
     if (TAB_URL) {
       let URL_RES = TAB_URL.substring(0, 4);
-      if (URL_RES === 'http') {
-        chrome.runtime.sendMessage({ script: "shortenLink", tab_url: TAB_URL, title: TITLE });
+      if (URL_RES === "http") {
+        chrome.runtime.sendMessage({
+          script: "shortenLink",
+          tab_url: TAB_URL,
+          title: TITLE,
+        });
       } else {
         document.getElementById("loading").style.display = "none";
         document.getElementById("faq").style.display = "inline";
         document.getElementById("noURL").style.display = "block";
-        document.getElementById("shareX").style.display = "none";
+        document.getElementById("shareY").style.display = "none";
         document.getElementById("qrcX").style.display = "none";
-        document.getElementById("dnt").style.display = "none";
       }
     }
   });
 }
 
-chrome.runtime.onMessage.addListener(
-  function (request, sender) {
-    let resultSht = request;
-    if (resultSht.shortLink) {
-      setURLshorten(resultSht.shortLink, resultSht.title);
-    }
+chrome.runtime.onMessage.addListener(function (request) {
+  let resultSht = request;
+  if (resultSht.shortLink) {
+    setURLshorten(resultSht.shortLink, resultSht.title, resultSht.longLink);
   }
-);
+});
 
 function checkDNT() {
-  console.log('doNotTrack', window.navigator.doNotTrack);
-  // alert("doNotTrack");
+  console.log("doNotTrack", window.navigator.doNotTrack);
   let dnt = window.navigator.doNotTrack;
   if (dnt == "1") {
-    // document.getElementById("shareX").style.display = "none";
     document.getElementById("dnt").style.display = "block";
     document.getElementById("shareY").style.display = "none";
   } else {
@@ -68,27 +66,34 @@ function checkDNT() {
 
 function restore_options() {
   let manifestData = chrome.runtime.getManifest();
-  let version = document.getElementById('version');
-  chrome.storage.local.get(['twitterTag', 'sharebutton','qrcode', 'mode'], function (result) {
-    onGotX(result);
-  });
+  let version = document.getElementById("version");
+  chrome.storage.local.get(
+    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy"],
+    function (result) {
+      onGotX(result);
+    }
+  );
 
-  version.textContent = '「 ver. ' + manifestData.version + ' 」';
-
+  version.textContent = manifestData.version;
 }
 
 function onGotX(items) {
-  let tag = document.getElementById('tag');
-  let sharebt = document.getElementById('sharebt');
-  let qrcbt = document.getElementById('qrcbt');
-  let darkbt = document.getElementById('darkmode');
+  let tag = document.getElementById("tag");
+  let sharebt = document.getElementById("sharebt");
+  let qrcbt = document.getElementById("qrcbt");
+  let darkbt = document.getElementById("darkmode");
+  let hashtag = document.getElementById("hashtag");
+  let atcopy = document.getElementById("atcopy");
 
   if (items.twitterTag) {
     tag.checked = items.twitterTag.value;
     if (items.twitterTag.value == true) {
-      w_hashtags = "&hashtags=iShortener";
+      w_hashtags = "&hashtags=" + items.hashtag.value;
+      hashtag.disabled = false;
+      hashtag.value = items.hashtag.value;
     } else {
-      w_hashtags = '';
+      w_hashtags = "";
+      hashtag.disabled = true;
     }
   } else {
     tag.checked = true;
@@ -96,19 +101,21 @@ function onGotX(items) {
 
   if (items.sharebutton) {
     sharebt.checked = items.sharebutton.value;
-    let show_button = document.getElementById('shareX');
     if (items.sharebutton.value) {
-      show_button.style.display = "block";
+      // show_button.style.display = "block";
+      share_now = true;
     } else {
-      show_button.style.display = "none";
+      // show_button.style.display = "none";
+      share_now = false;
     }
   } else {
     sharebt.checked = true;
+    share_now = true;
   }
 
   if (items.qrcode) {
     qrcbt.checked = items.qrcode.value;
-    let show_qrc = document.getElementById('qrcX');
+    let show_qrc = document.getElementById("qrcX");
     if (items.qrcode.value) {
       show_qrc.style.display = "block";
     } else {
@@ -121,24 +128,43 @@ function onGotX(items) {
   if (items.mode) {
     darkbt.checked = items.mode.value;
     if (items.mode.value) {
-      document.getElementById("theme").classList.add('darkmode');
+      document.getElementById("theme").classList.add("darkmode");
     } else {
-      document.getElementById("theme").classList.remove('darkmode');
+      document.getElementById("theme").classList.remove("darkmode");
     }
   } else {
     darkbt.checked = false;
   }
+
+  if (items.autocopy) {
+    atcopy.checked = items.autocopy.value;
+    if (items.autocopy.value) {
+      atcopy.checked = true;
+      copy_now = true;
+    } else {
+      atcopy.checked = false;
+      copy_now = false;
+    }
+  } else {
+    atcopy.checked = true;
+    copy_now = true;
+  }
 }
 
-function setURLshorten(shtURL, title) {
+function setURLshorten(shtURL, title, LgURL) {
   let input = document.getElementById("url");
   if (shtURL != undefined) {
     hide();
     input.value = shtURL;
-    copy();
-    share(shtURL, title);
+    if (copy_now) {
+      copy();
+    }
+    if (share_now) {
+      document.getElementById("shareY").style.display = "block";
+    }
+    share(shtURL, title, LgURL);
     genQRC(shtURL);
-    input.blur()
+    input.blur();
   }
 }
 
@@ -152,7 +178,14 @@ function genQRC(url) {
 }
 
 function copy() {
+  let complete = document.getElementById("complete");
+  let copped = document.getElementById("copped");
+
   let copyText = document.querySelector("#url");
+
+  complete.style.display = "none";
+  copped.style.display = "inline";
+
   copyText.select();
   document.execCommand("copy");
 }
@@ -163,22 +196,24 @@ function hide() {
 
   load.style.display = "none";
   complete.style.display = "inline";
-  checkDNT();
 }
 
-function share(shtURL, title_o) {
-  let title = encodeURI(title_o)
+function share(shtURL, title_o, lgURL) {
+  let title = encodeURI(title_o);
   let url = encodeURI(shtURL);
-  let tweet = document.getElementById("tweet");
-  let facebook = document.getElementById("facebook");
+  let tweetbt = document.getElementById("tweetbt");
+  let facebookbt = document.getElementById("facebookbt");
   let hashtags = w_hashtags;
-  tweet.src = "https://platform.twitter.com/widgets/tweet_button.html?size=m&url=" + shtURL + "&related=9holotpk&text=" + title + hashtags;
-  document.getElementsByTagName('iframe')[1].parentNode.appendChild(tweet);
 
-  facebook.src = "https://www.facebook.com/plugins/share_button.php?href=" + shtURL + "&layout=button&size=small&mobile_iframe=true&width=60&height=20&appId";
-  document.getElementsByTagName('iframe')[0].parentNode.appendChild(facebook);
+  tweetbt.href =
+    "https://twitter.com/intent/tweet?size=m&url=" +
+    shtURL +
+    "&related=9holotpk&text=" +
+    title +
+    hashtags;
+
+  facebookbt.href = "https://www.facebook.com/sharer/sharer.php?u=" + lgURL;
 }
-
 
 function show_options() {
   var x = document.getElementById("myDIV");
@@ -189,14 +224,29 @@ function show_options() {
   }
 }
 
-function save_optionsX() {
-  let tag = document.getElementById('tag').checked;
-  let sharebt = document.getElementById('sharebt').checked;
-  let show_button = document.getElementById('shareX');
-  let qrcbt = document.getElementById('qrcbt').checked;
-  let show_qrc = document.getElementById('qrcX');
-  let darkbt = document.getElementById('darkmode').checked;
+function gotoAbout() {
+  window.open(
+    "about:addons",
+    "_blank" // <- This is what makes it open in a new window.
+  );
+}
 
+function save_optionsX() {
+  let tag = document.getElementById("tag").checked;
+  let sharebt = document.getElementById("sharebt").checked;
+  let show_button = document.getElementById("shareY");
+  let qrcbt = document.getElementById("qrcbt").checked;
+  let show_qrc = document.getElementById("qrcX");
+  let darkbt = document.getElementById("darkmode").checked;
+  let hashtag_in = document.getElementById("hashtag");
+  let atcopy = document.getElementById("atcopy").checked;
+
+  if (!tag) {
+    hashtag_in.value = "iShortener";
+    hashtag_in.disabled = true;
+  } else {
+    hashtag_in.disabled = false;
+  }
 
   if (qrcbt) {
     show_qrc.style.display = "block";
@@ -205,9 +255,9 @@ function save_optionsX() {
   }
 
   if (darkbt) {
-    document.getElementById("theme").classList.add('darkmode');
+    document.getElementById("theme").classList.add("darkmode");
   } else {
-    document.getElementById("theme").classList.remove('darkmode');
+    document.getElementById("theme").classList.remove("darkmode");
   }
 
   if (sharebt) {
@@ -219,25 +269,44 @@ function save_optionsX() {
   var twitterTag = {
     name: "#",
     value: tag,
-  }
+  };
+  var hashtag = {
+    name: "Hashtag",
+    value: hashtag_in.value,
+  };
   var sharebutton = {
     name: "Facebook, Twitter",
     value: sharebt,
-  }
+  };
   var qrcode = {
     name: "QR Code",
     value: qrcbt,
-  }
+  };
 
   var mode = {
-    name: 'Mode',
-    value: darkbt
-  }
+    name: "Mode",
+    value: darkbt,
+  };
+
+  var autocopy = {
+    name: "autocopy",
+    value: atcopy,
+  };
 
   // store the objects
-  chrome.storage.local.set({ 'twitterTag': twitterTag, 'sharebutton': sharebutton, 'qrcode': qrcode, 'mode': mode }, function () {
-    // console.log('Save', mode);
-  });
+  chrome.storage.local.set(
+    {
+      twitterTag: twitterTag,
+      sharebutton: sharebutton,
+      qrcode: qrcode,
+      mode: mode,
+      hashtag: hashtag,
+      autocopy: autocopy,
+    },
+    function () {
+      // console.log('Save', mode);
+    }
+  );
 }
 
 function setItem() {
@@ -247,6 +316,3 @@ function setItem() {
 function onError(error) {
   console.log(`Error: ${error}`);
 }
-
-
-
