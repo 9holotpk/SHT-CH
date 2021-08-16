@@ -13,10 +13,17 @@ document.getElementById("atcopy").addEventListener("click", save_optionsX);
 document.getElementById("complete").addEventListener("click", copy);
 document.getElementById("copped").addEventListener("click", copy);
 
+document.getElementById("tweetbt").addEventListener("click", shareToTW);
+document.getElementById("facebookbt").addEventListener("click", shareToFB);
+
+
 // # Value
 let w_hashtags = "&hashtags=iShortener";
 let copy_now = false;
 let share_now = false;
+
+let tweetbt = '';
+let facebookbt = '';
 
 // # Onload
 onGot();
@@ -207,18 +214,28 @@ function hide() {
 function share(shtURL, title_o, lgURL) {
   let title = encodeURI(title_o);
   let url = encodeURI(shtURL);
-  let tweetbt = document.getElementById("tweetbt");
-  let facebookbt = document.getElementById("facebookbt");
   let hashtags = w_hashtags;
 
-  tweetbt.href =
+  tweetbt =
     "https://twitter.com/intent/tweet?size=m&url=" +
     shtURL +
     "&related=9holotpk&text=" +
     title +
     hashtags;
 
-  facebookbt.href = "https://www.facebook.com/sharer/sharer.php?u=" + lgURL;
+  facebookbt = "https://www.facebook.com/sharer/sharer.php?u=" + lgURL;
+}
+
+function shareToTW() {
+  chrome.tabs.create({
+    url: tweetbt
+  });
+}
+
+function shareToFB() {
+  chrome.tabs.create({
+    url: facebookbt
+  });
 }
 
 function show_options() {
