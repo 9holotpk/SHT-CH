@@ -6,7 +6,7 @@ UPDATE: 26/11/2018  - Update #url #bodyPopup input size.
 */
 
 body {
-  width: 250px;
+  width: 255px;
 }
 
 #input {
@@ -15,13 +15,23 @@ body {
   justify-content: center;
 }
 
-input.short-url {
-  font-family: consolas, "Liberation Mono", courier, monospace !important;
+.darkmode .result {
+  background-color: black;
+  border: 1px solid darkgray;
+  color: #e1e4e8;
 }
 
-.darkmode .result {
-  background-color: darkgray;
-  border: 3px solid darkgray;
+.darkmode .result:disabled {
+  background-color: dimgray;
+  border: 1px solid darkgray;
+  color: #e1e4e8;
+}
+
+.darkmode input:focus-within {
+  background: black;
+  background-color: black;
+  border: 1px solid darkgray;
+  color: #e1e4e8;
 }
 
 .options {
@@ -59,13 +69,13 @@ input.short-url {
 }
 
 /* .version {
-      font: 0.75em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: gray;
-  } */
+    font: 0.75em 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: gray;
+} */
 
 /* #shareX {
-      height: 2em;
-  } */
+    height: 2em;
+} */
 
 #url {
   width: 12em;
@@ -136,13 +146,13 @@ input {
 }
 
 /* .shareY {
-      padding: 5px;
-      margin-right: 5px;
-      text-align: center;
-      align-content: center;
-      justify-content: center;
-      
-  } */
+    padding: 5px;
+    margin-right: 5px;
+    text-align: center;
+    align-content: center;
+    justify-content: center;
+    
+} */
 
 .cur-pointer {
   cursor: pointer;
@@ -177,3 +187,13 @@ a.share-to-twitter:hover svg path,
 svg rect {
   fill: rgb(29, 155, 240) !important;
 }
+.input-url-matter {
+  position: relative;
+}
+
+.input-url-matter button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+

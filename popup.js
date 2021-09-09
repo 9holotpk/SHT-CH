@@ -10,16 +10,17 @@ document.getElementById("qrcbt").addEventListener("click", save_optionsX);
 document.getElementById("darkmode").addEventListener("click", save_optionsX);
 document.getElementById("hashtag").addEventListener("keyup", save_optionsX);
 document.getElementById("atcopy").addEventListener("click", save_optionsX);
+document.getElementById("https").addEventListener("click", save_optionsX);
 document.getElementById("complete").addEventListener("click", copy);
 document.getElementById("copped").addEventListener("click", copy);
 
 document.getElementById("tweetbt").addEventListener("click", shareToTW);
 document.getElementById("facebookbt").addEventListener("click", shareToFB);
 
-
 // # Value
 let w_hashtags = "&hashtags=iShortener";
 let copy_now = false;
+let https_cut = false;
 let share_now = false;
 
 let tweetbt = '';
@@ -74,7 +75,7 @@ function restore_options() {
   let manifestData = chrome.runtime.getManifest();
   let version = document.getElementById("version");
   chrome.storage.local.get(
-    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy"],
+    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "httpscut"],
     function (result) {
       onGotX(result);
     }
@@ -90,6 +91,7 @@ function onGotX(items) {
   let darkbt = document.getElementById("darkmode");
   let hashtag = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy");
+  let https = document.getElementById("https");
 
   if (items.twitterTag) {
     tag.checked = items.twitterTag.value;
@@ -155,12 +157,31 @@ function onGotX(items) {
     atcopy.checked = true;
     copy_now = true;
   }
+
+  if (items.httpscut) {
+    https.checked = items.httpscut.value;
+    if (items.httpscut.value) {
+      https.checked = true;
+      https_cut = true;
+    } else {
+      https.checked = false;
+      https_cut = false;
+    }
+  } else {
+    https.checked = true;
+    https_cut = true;
+  }
 }
 
 function setURLshorten(shtURL, title, LgURL) {
   let input = document.getElementById("url");
   if (shtURL && shtURL != undefined && shtURL.includes("https")) {
-    const shtURLcut = shtURL.slice(8);
+    let shtURLcut;
+    if (https_cut) {
+      shtURLcut = shtURL.slice(8);
+    } else {
+      shtURLcut = shtURL;
+    }
     hide();
     input.value = shtURLcut;
     if (copy_now) {
@@ -263,6 +284,7 @@ function save_optionsX() {
   let darkbt = document.getElementById("darkmode").checked;
   let hashtag_in = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy").checked;
+  let httpsct = document.getElementById("https").checked;
 
   if (!tag) {
     hashtag_in.value = "iShortener";
@@ -316,6 +338,11 @@ function save_optionsX() {
     value: atcopy,
   };
 
+  var httpscut = {
+    name: "https",
+    value: httpsct,
+  };
+
   // store the objects
   chrome.storage.local.set(
     {
@@ -325,6 +352,7 @@ function save_optionsX() {
       mode: mode,
       hashtag: hashtag,
       autocopy: autocopy,
+      httpscut: httpscut
     },
     function () {
       // console.log('Save', mode);
