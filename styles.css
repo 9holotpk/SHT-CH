@@ -34,21 +34,41 @@ body {
   color: #e1e4e8;
 }
 
-.options {
-  color: rgb(165, 164, 164);
+label:hover {
   cursor: pointer;
 }
-.options:hover {
-  color: rgb(0, 0, 0);
-  /* text-decoration-line: underline; */
-}
-.darkmode .options:hover {
-  color: rgb(242, 245, 247);
-  text-decoration-line: underline;
+
+.canvas-img:hover {
+  cursor: pointer;
 }
 
-.darkmode small {
+.icon-options {
+  cursor: pointer;
+  color: rgb(165, 164, 164);
+}
+
+.icon-options:hover {
+  color: rgb(0, 0, 0) !important;
+}
+
+.icon-options:hover svg path{
+  fill: rgb(0, 0, 0) !important;
+}
+
+.icon-options svg path{
+  fill:  rgb(165, 164, 164) !important;
+}
+
+.darkmode label small {
   color: rgb(206, 206, 206);
+}
+
+.darkmode .icon-options:hover {
+  color: rgb(242, 245, 247) !important;
+}
+
+.darkmode .icon-options:hover svg path{
+  fill: rgb(242, 245, 247) !important;
 }
 
 .darkmode .card {
@@ -170,7 +190,7 @@ input {
   display: inline;
 }
 
-a.share-to-facebook:hover {
+a.share-to-facebook:hover label {
   color: rgb(24, 119, 242) !important;
 }
 
@@ -179,7 +199,7 @@ svg rect {
   fill: rgb(24, 119, 242) !important;
 }
 
-a.share-to-twitter:hover {
+a.share-to-twitter:hover label {
   color: rgb(29, 155, 240) !important;
 }
 

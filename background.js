@@ -18,8 +18,8 @@ chrome.runtime.onMessage.addListener(function (request) {
   }
 });
 
-chrome.runtime.onInstalled.addListener(function() {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+chrome.runtime.onInstalled.addListener(function () {
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     chrome.declarativeContent.onPageChanged.addRules([
       {
         conditions: [
@@ -27,7 +27,7 @@ chrome.runtime.onInstalled.addListener(function() {
             pageUrl: { schemes: ['https', 'http'] }
           })
         ],
-        actions: [ new chrome.declarativeContent.ShowPageAction() ]
+        actions: [new chrome.declarativeContent.ShowPageAction()]
       }
     ]);
   });
@@ -41,35 +41,50 @@ function shortenLink(link, title) {
   const longDynamicLink = link;
   const urlKey = "https://us-central1-url-shortener-x.cloudfunctions.net/getKey";
 
-  function reqListener() {
-    const api = JSON.parse(this.responseText);
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", api.key, true);
+  fetch(urlKey)
+    .then(
+      function (response) {
+        if (response.status !== 200) {
+          console.log('Looks like there was a problem. Status Code: ' +
+            response.status);
+          return;
+        }
 
-    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-        const response = (JSON.parse(xhr.responseText));
-        chrome.runtime.sendMessage({ shortLink: response.shortLink, title: title, longLink: link });
+        // Examine the text in the response
+        response.json().then(function (data) {
+          console.log(data);
+          const api = data;
+          fetch(api.key, {
+            method: 'post',
+            headers: {
+              "Content-type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify({
+              "dynamicLinkInfo": {
+                "dynamicLinkDomain": api.domain,
+                "link": longDynamicLink
+              },
+              "suffix": {
+                "option": "SHORT"
+              }
+            })
+          })
+            // .then(json)
+            .then(function (response) {
+              console.log('Request succeeded with JSON response', response);
+              response.json().then(function(data) {
+                chrome.runtime.sendMessage({ shortLink: data.shortLink, title: title, longLink: link });
+                });
+            })
+            .catch(function (error) {
+              console.log('Request failed', error);
+            });
+        });
       }
-    };
-
-    // xhr.send(JSON.stringify({ "longUrl": link }));
-    xhr.send(JSON.stringify({
-      "dynamicLinkInfo": {
-        "dynamicLinkDomain": api.domain,
-        "link": longDynamicLink
-      },
-      "suffix": {
-        "option": "SHORT"
-      }
-    }));
-  }
-
-  const oReq = new XMLHttpRequest();
-  oReq.addEventListener("load", reqListener);
-  oReq.open("GET", urlKey);
-  oReq.send();
+    )
+    .catch(function (err) {
+      console.log('Fetch Error :-S', err);
+    });
 
 }
 

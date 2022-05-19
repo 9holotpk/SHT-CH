@@ -1,10 +1,9 @@
 {
     "author": "9holotpk",
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "service_worker": "background.js"
       },
-    "page_action": {
+    "action": {
         "default_icon": {
             "16": "icons/link_16.png",
             "32": "icons/link_32.png"
@@ -27,7 +26,7 @@
         "64": "icons/link_64.png",
         "128": "icons/link_128.png"
     },
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "URL Shortener QR Code & Share - iShortener",
     "permissions": [
         "storage",
@@ -36,5 +35,5 @@
         "declarativeContent"
     ],
     "short_name": "iShortener",
-    "version": "4.4"
+    "version": "4.5"
 }

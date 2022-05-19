@@ -2,6 +2,7 @@
 // NOTE: Click to Shorten URL
 
 // # Event
+document.getElementById("qrcode-canvas").addEventListener("click", save_qrcode);
 document.getElementById("optionsX").addEventListener("click", show_options);
 document.addEventListener("DOMContentLoaded", restore_options);
 document.getElementById("tag").addEventListener("click", save_optionsX);
@@ -10,7 +11,7 @@ document.getElementById("qrcbt").addEventListener("click", save_optionsX);
 document.getElementById("darkmode").addEventListener("click", save_optionsX);
 document.getElementById("hashtag").addEventListener("keyup", save_optionsX);
 document.getElementById("atcopy").addEventListener("click", save_optionsX);
-document.getElementById("https").addEventListener("click", save_optionsX);
+document.getElementById("qrcodeurlbt").addEventListener("click", save_optionsX);
 document.getElementById("complete").addEventListener("click", copy);
 document.getElementById("copped").addEventListener("click", copy);
 
@@ -20,8 +21,9 @@ document.getElementById("facebookbt").addEventListener("click", shareToFB);
 // # Value
 let w_hashtags = "&hashtags=iShortener";
 let copy_now = false;
-let https_cut = false;
+let qrcode_url = false;
 let share_now = false;
+let urlshort = '';
 
 let tweetbt = '';
 let facebookbt = '';
@@ -30,6 +32,7 @@ let facebookbt = '';
 onGot();
 
 function onGot() {
+  urlshort = '';
   chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
     TAB_URL = tabs[0].url;
     TITLE = tabs[0].title;
@@ -75,7 +78,7 @@ function restore_options() {
   let manifestData = chrome.runtime.getManifest();
   let version = document.getElementById("version");
   chrome.storage.local.get(
-    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "httpscut"],
+    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "qrcodeurl"],
     function (result) {
       onGotX(result);
     }
@@ -91,7 +94,7 @@ function onGotX(items) {
   let darkbt = document.getElementById("darkmode");
   let hashtag = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy");
-  let https = document.getElementById("https");
+  let qrcodeurlbt = document.getElementById("qrcodeurlbt");
 
   if (items.twitterTag) {
     tag.checked = items.twitterTag.value;
@@ -158,18 +161,18 @@ function onGotX(items) {
     copy_now = true;
   }
 
-  if (items.httpscut) {
-    https.checked = items.httpscut.value;
-    if (items.httpscut.value) {
-      https.checked = true;
-      https_cut = true;
+  if (items.qrcodeurl) {
+    qrcodeurlbt.checked = items.qrcodeurl.value;
+    if (items.qrcodeurl.value) {
+      qrcodeurlbt.checked = true;
+      qrcode_url = true;
     } else {
-      https.checked = false;
-      https_cut = false;
+      qrcodeurlbt.checked = false;
+      qrcode_url = false;
     }
   } else {
-    https.checked = true;
-    https_cut = true;
+    qrcodeurlbt.checked = true;
+    qrcode_url = true;
   }
 }
 
@@ -177,11 +180,9 @@ function setURLshorten(shtURL, title, LgURL) {
   let input = document.getElementById("url");
   if (shtURL && shtURL != undefined && shtURL.includes("https")) {
     let shtURLcut;
-    if (https_cut) {
-      shtURLcut = shtURL.slice(8);
-    } else {
-      shtURLcut = shtURL;
-    }
+    urlshort = shtURL.slice(8);
+    shtURLcut = shtURL;
+
     hide();
     input.value = shtURLcut;
     if (copy_now) {
@@ -284,7 +285,7 @@ function save_optionsX() {
   let darkbt = document.getElementById("darkmode").checked;
   let hashtag_in = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy").checked;
-  let httpsct = document.getElementById("https").checked;
+  let qrcodeurlbt = document.getElementById("qrcodeurlbt").checked;
 
   if (!tag) {
     hashtag_in.value = "iShortener";
@@ -338,9 +339,9 @@ function save_optionsX() {
     value: atcopy,
   };
 
-  var httpscut = {
-    name: "https",
-    value: httpsct,
+  var qrcodeurl = {
+    name: "qrcodeurl",
+    value: qrcodeurlbt,
   };
 
   // store the objects
@@ -352,12 +353,44 @@ function save_optionsX() {
       mode: mode,
       hashtag: hashtag,
       autocopy: autocopy,
-      httpscut: httpscut
+      qrcodeurl: qrcodeurl
     },
     function () {
       // console.log('Save', mode);
     }
   );
+}
+
+function save_qrcode() {
+  var canvas = document.getElementById("qrcode-canvas");
+  var gh = '';
+
+  if (qrcode_url) {
+    var canvas_draft = document.getElementById("qrcode-canvas-draft");
+    var context = canvas_draft.getContext("2d");
+
+    canvas_draft.width = 200;
+    canvas_draft.height = 250;
+
+    context.fillStyle = "white";
+    context.fillRect(0, 0, 220, 250);
+    context.drawImage(canvas, 32.5, 32.5);
+
+    context.font = "16pt monospace";
+    context.fillStyle = "black";
+    context.textAlign = "center";
+    context.fillText(urlshort, 100, 200);
+
+    gh = canvas_draft.toDataURL('png');
+  } else {
+    gh = canvas.toDataURL('png');
+  }
+
+  var a = document.createElement('a');
+  a.href = gh;
+  a.download = urlshort + '.png';
+
+  a.click()
 }
 
 function setItem() {
