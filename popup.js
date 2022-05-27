@@ -67,14 +67,15 @@ function onGot() {
     if (TAB_URL) {
       let URL_RES = TAB_URL.substring(0, 4);
       if (URL_RES === "http") {
-        const sending = chrome.runtime.sendMessage({
+        chrome.runtime.sendMessage({
           script: "post_url",
           token: token,
           domain: domain,
           link: TAB_URL,
           title: TITLE,
+        }, function(response) {
+          handleResponse(response)
         });
-        sending.then(handleResponse, handleError);
       } else {
         document.getElementById("loading").style.display = "none";
         document.getElementById("faq").style.display = "inline";
@@ -105,7 +106,7 @@ function initialLoad() {
   chrome.storage.local.get(
     ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "qrcodeurl"],
     function (result) {
-      restoreSettings(result);
+      onGotX(result);
     }
   );
 
@@ -113,16 +114,14 @@ function initialLoad() {
     ["token", "domain", "expiration"],
     function (result) {
       if (!result.token || !result.domain) {
-        const sending = chrome.runtime.sendMessage({
-          script: "get_token"
+        chrome.runtime.sendMessage({script: "get_token"}, function(response) {
+          handleResponse(response)
         });
-        sending.then(handleResponse, handleError);
       } else {
         if (result.expiration < new Date().getTime()) {
-          const sending = chrome.runtime.sendMessage({
-            script: "get_token"
+          chrome.runtime.sendMessage({script: "get_token"}, function(response) {
+            handleResponse(response)
           });
-          sending.then(handleResponse, handleError);
         } else {
           token = result.token;
           domain = result.domain;
@@ -135,7 +134,7 @@ function initialLoad() {
   version.textContent = manifestData.version;
 }
 
-function restoreSettings(items) {
+function onGotX(items) {
   let tag = document.getElementById("tag");
   let sharebt = document.getElementById("sharebt");
   let qrcbt = document.getElementById("qrcbt");
