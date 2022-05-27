@@ -1,20 +1,56 @@
-// DEV. EXTENTION BY iTON // => BACKGROUND.JS
-// NOTE:    Click to Shorten URL
-// UPDATE:  13/06/2018  - Copy Add-On from SHT-FF ver. 1.3.1
-//                      - Edit and Optimize for Opera Add-On.
-//          14/06/2018  - Optimize update and Bug fixed.
-//          26/11/2018  - Update API and Changed URL Link.
-//          16/05/2020  - Update API with Firebase and Changed Domain Link.
-
-// API
-
 let TAB_URL = '';
 let TITLE = '';
+const API_GET_KEY = "https://us-central1-url-shortener-x.cloudfunctions.net/getKey";
 
-chrome.runtime.onMessage.addListener(function (request) {
-  let resultX = request;
-  if (resultX.script === "shortenLink") {
-    shortenLink(resultX.tab_url, resultX.title);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.hasOwnProperty("script")) {
+    switch (request.script) {
+      case "get_token": {
+        const url = API_GET_KEY;
+        fetch(url)
+          .then(response => response.text())
+          .then(response => {
+            const message = {
+              script: 'token',
+              token: JSON.parse(response).key,
+              domain: JSON.parse(response).domain
+            };
+            sendResponse(message);
+          })
+          .catch()
+        return true;
+      }
+      case "post_url": {
+        const url = request.token;
+        fetch(url, {
+          method: 'post',
+          headers: {
+            "Content-type": "application/json; charset=UTF-8"
+          },
+          body: JSON.stringify({
+            "dynamicLinkInfo": {
+              "dynamicLinkDomain": request.domain,
+              "link": request.link
+            },
+            "suffix": {
+              "option": "SHORT"
+            }
+          })
+        })
+          .then(response => response.text())
+          .then(response => {
+            const message = {
+              script: 'short',
+              shortLink: JSON.parse(response).shortLink,
+              title: request.title,
+              link: request.link
+            };
+            sendResponse(message);
+          })
+          .catch()
+        return true;
+      }
+    }
   }
 });
 
@@ -37,55 +73,5 @@ function onError(error) {
   console.log(`Error: ${error}`);
 }
 
-function shortenLink(link, title) {
-  const longDynamicLink = link;
-  const urlKey = "https://us-central1-url-shortener-x.cloudfunctions.net/getKey";
-
-  fetch(urlKey)
-    .then(
-      function (response) {
-        if (response.status !== 200) {
-          console.log('Looks like there was a problem. Status Code: ' +
-            response.status);
-          return;
-        }
-
-        // Examine the text in the response
-        response.json().then(function (data) {
-          console.log(data);
-          const api = data;
-          fetch(api.key, {
-            method: 'post',
-            headers: {
-              "Content-type": "application/json; charset=UTF-8"
-            },
-            body: JSON.stringify({
-              "dynamicLinkInfo": {
-                "dynamicLinkDomain": api.domain,
-                "link": longDynamicLink
-              },
-              "suffix": {
-                "option": "SHORT"
-              }
-            })
-          })
-            // .then(json)
-            .then(function (response) {
-              console.log('Request succeeded with JSON response', response);
-              response.json().then(function(data) {
-                chrome.runtime.sendMessage({ shortLink: data.shortLink, title: title, longLink: link });
-                });
-            })
-            .catch(function (error) {
-              console.log('Request failed', error);
-            });
-        });
-      }
-    )
-    .catch(function (err) {
-      console.log('Fetch Error :-S', err);
-    });
-
-}
 
 

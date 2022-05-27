@@ -1,20 +1,16 @@
-// DEV. EXTENTION BY iTON // => POPUP.JS
-// NOTE: Click to Shorten URL
-
 // # Event
-document.getElementById("qrcode-canvas").addEventListener("click", save_qrcode);
-document.getElementById("optionsX").addEventListener("click", show_options);
-document.addEventListener("DOMContentLoaded", restore_options);
-document.getElementById("tag").addEventListener("click", save_optionsX);
-document.getElementById("sharebt").addEventListener("click", save_optionsX);
-document.getElementById("qrcbt").addEventListener("click", save_optionsX);
-document.getElementById("darkmode").addEventListener("click", save_optionsX);
-document.getElementById("hashtag").addEventListener("keyup", save_optionsX);
-document.getElementById("atcopy").addEventListener("click", save_optionsX);
-document.getElementById("qrcodeurlbt").addEventListener("click", save_optionsX);
+document.addEventListener("DOMContentLoaded", initialLoad);
+document.getElementById("qrcode-canvas").addEventListener("click", saveQRCode);
+document.getElementById("optionsX").addEventListener("click", showSettings);
+document.getElementById("tag").addEventListener("click", saveSettings);
+document.getElementById("sharebt").addEventListener("click", saveSettings);
+document.getElementById("qrcbt").addEventListener("click", saveSettings);
+document.getElementById("darkmode").addEventListener("click", saveSettings);
+document.getElementById("hashtag").addEventListener("keyup", saveSettings);
+document.getElementById("atcopy").addEventListener("click", saveSettings);
+document.getElementById("qrcodeurlbt").addEventListener("click", saveSettings);
 document.getElementById("complete").addEventListener("click", copy);
 document.getElementById("copped").addEventListener("click", copy);
-
 document.getElementById("tweetbt").addEventListener("click", shareToTW);
 document.getElementById("facebookbt").addEventListener("click", shareToFB);
 
@@ -28,8 +24,40 @@ let urlshort = '';
 let tweetbt = '';
 let facebookbt = '';
 
-// # Onload
-onGot();
+let token = '';
+let domain = '';
+
+function handleResponse(message) {
+  switch (message.script) {
+    case "token": {
+      const now = new Date();
+      now.setTime(now.getTime() + 336 * 3600 * 1000);
+      chrome.storage.local.set(
+        {
+          token: message.token,
+          domain: message.domain,
+          expiration: now.getTime()
+        },
+        function () {
+          token = message.token;
+          domain = message.domain;
+          onGot();
+        }
+      );
+    }
+      break;
+    case "short": {
+      setURLshorten(message.shortLink, message.title, message.link);
+    }
+      break;
+    default:
+      break;
+  }
+}
+
+function handleError(error) {
+  console.log(`Error: ${error}`);
+}
 
 function onGot() {
   urlshort = '';
@@ -39,11 +67,14 @@ function onGot() {
     if (TAB_URL) {
       let URL_RES = TAB_URL.substring(0, 4);
       if (URL_RES === "http") {
-        chrome.runtime.sendMessage({
-          script: "shortenLink",
-          tab_url: TAB_URL,
+        const sending = chrome.runtime.sendMessage({
+          script: "post_url",
+          token: token,
+          domain: domain,
+          link: TAB_URL,
           title: TITLE,
         });
+        sending.then(handleResponse, handleError);
       } else {
         document.getElementById("loading").style.display = "none";
         document.getElementById("faq").style.display = "inline";
@@ -54,13 +85,6 @@ function onGot() {
     }
   });
 }
-
-chrome.runtime.onMessage.addListener(function (request) {
-  let resultSht = request;
-  if (resultSht.shortLink) {
-    setURLshorten(resultSht.shortLink, resultSht.title, resultSht.longLink);
-  }
-});
 
 function checkDNT() {
   console.log("doNotTrack", window.navigator.doNotTrack);
@@ -74,20 +98,44 @@ function checkDNT() {
   }
 }
 
-function restore_options() {
+function initialLoad() {
   let manifestData = chrome.runtime.getManifest();
   let version = document.getElementById("version");
+
   chrome.storage.local.get(
     ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "qrcodeurl"],
     function (result) {
-      onGotX(result);
+      restoreSettings(result);
+    }
+  );
+
+  chrome.storage.local.get(
+    ["token", "domain", "expiration"],
+    function (result) {
+      if (!result.token || !result.domain) {
+        const sending = chrome.runtime.sendMessage({
+          script: "get_token"
+        });
+        sending.then(handleResponse, handleError);
+      } else {
+        if (result.expiration < new Date().getTime()) {
+          const sending = chrome.runtime.sendMessage({
+            script: "get_token"
+          });
+          sending.then(handleResponse, handleError);
+        } else {
+          token = result.token;
+          domain = result.domain;
+          onGot();
+        }
+      }
     }
   );
 
   version.textContent = manifestData.version;
 }
 
-function onGotX(items) {
+function restoreSettings(items) {
   let tag = document.getElementById("tag");
   let sharebt = document.getElementById("sharebt");
   let qrcbt = document.getElementById("qrcbt");
@@ -260,7 +308,7 @@ function shareToFB() {
   });
 }
 
-function show_options() {
+function showSettings() {
   var x = document.getElementById("myDIV");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -276,7 +324,7 @@ function gotoAbout() {
   );
 }
 
-function save_optionsX() {
+function saveSettings() {
   let tag = document.getElementById("tag").checked;
   let sharebt = document.getElementById("sharebt").checked;
   let show_button = document.getElementById("shareY");
@@ -361,7 +409,7 @@ function save_optionsX() {
   );
 }
 
-function save_qrcode() {
+function saveQRCode() {
   var canvas = document.getElementById("qrcode-canvas");
   var gh = '';
 
@@ -391,12 +439,4 @@ function save_qrcode() {
   a.download = urlshort + '.png';
 
   a.click()
-}
-
-function setItem() {
-  // console.log("OK");
-}
-
-function onError(error) {
-  console.log(`Error: ${error}`);
 }
