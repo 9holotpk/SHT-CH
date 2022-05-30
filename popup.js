@@ -2,11 +2,9 @@
 document.addEventListener("DOMContentLoaded", initialLoad);
 document.getElementById("qrcode-canvas").addEventListener("click", saveQRCode);
 document.getElementById("optionsX").addEventListener("click", showSettings);
-document.getElementById("tag").addEventListener("click", saveSettings);
 document.getElementById("sharebt").addEventListener("click", saveSettings);
 document.getElementById("qrcbt").addEventListener("click", saveSettings);
 document.getElementById("darkmode").addEventListener("click", saveSettings);
-document.getElementById("hashtag").addEventListener("keyup", saveSettings);
 document.getElementById("atcopy").addEventListener("click", saveSettings);
 document.getElementById("qrcodeurlbt").addEventListener("click", saveSettings);
 document.getElementById("complete").addEventListener("click", copy);
@@ -15,7 +13,6 @@ document.getElementById("tweetbt").addEventListener("click", shareToTW);
 document.getElementById("facebookbt").addEventListener("click", shareToFB);
 
 // # Value
-let w_hashtags = "&hashtags=iShortener";
 let copy_now = false;
 let qrcode_url = false;
 let share_now = false;
@@ -104,7 +101,7 @@ function initialLoad() {
   let version = document.getElementById("version");
 
   chrome.storage.local.get(
-    ["twitterTag", "sharebutton", "qrcode", "mode", "hashtag", "autocopy", "qrcodeurl"],
+    ["sharebutton", "qrcode", "mode", "autocopy", "qrcodeurl"],
     function (result) {
       onGotX(result);
     }
@@ -135,27 +132,11 @@ function initialLoad() {
 }
 
 function onGotX(items) {
-  let tag = document.getElementById("tag");
   let sharebt = document.getElementById("sharebt");
   let qrcbt = document.getElementById("qrcbt");
   let darkbt = document.getElementById("darkmode");
-  let hashtag = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy");
   let qrcodeurlbt = document.getElementById("qrcodeurlbt");
-
-  if (items.twitterTag) {
-    tag.checked = items.twitterTag.value;
-    if (items.twitterTag.value == true) {
-      w_hashtags = "&hashtags=" + items.hashtag.value;
-      hashtag.disabled = false;
-      hashtag.value = items.hashtag.value;
-    } else {
-      w_hashtags = "";
-      hashtag.disabled = true;
-    }
-  } else {
-    tag.checked = true;
-  }
 
   if (items.sharebutton) {
     sharebt.checked = items.sharebutton.value;
@@ -254,7 +235,7 @@ function genQRC(url) {
   var canvas = document.getElementById("qrcode-canvas");
   var QRC = qrcodegen.QrCode;
   var qr0 = QRC.encodeText(url, QRC.Ecc.MEDIUM);
-  var scale = 5;
+  var scale = 15;
   qr0.drawCanvas(scale, 1, canvas);
   canvas.style.removeProperty("display");
 }
@@ -283,14 +264,12 @@ function hide() {
 function share(shtURL, title_o, lgURL) {
   let title = encodeURI(title_o);
   let url = encodeURI(shtURL);
-  let hashtags = w_hashtags;
 
   tweetbt =
     "https://twitter.com/intent/tweet?size=m&url=" +
     shtURL +
     "&related=9holotpk&text=" +
-    title +
-    hashtags;
+    title;
 
   facebookbt = "https://www.facebook.com/sharer/sharer.php?u=" + lgURL;
 }
@@ -324,22 +303,13 @@ function gotoAbout() {
 }
 
 function saveSettings() {
-  let tag = document.getElementById("tag").checked;
   let sharebt = document.getElementById("sharebt").checked;
   let show_button = document.getElementById("shareY");
   let qrcbt = document.getElementById("qrcbt").checked;
   let show_qrc = document.getElementById("qrcX");
   let darkbt = document.getElementById("darkmode").checked;
-  let hashtag_in = document.getElementById("hashtag");
   let atcopy = document.getElementById("atcopy").checked;
   let qrcodeurlbt = document.getElementById("qrcodeurlbt").checked;
-
-  if (!tag) {
-    hashtag_in.value = "iShortener";
-    hashtag_in.disabled = true;
-  } else {
-    hashtag_in.disabled = false;
-  }
 
   if (qrcbt) {
     show_qrc.style.display = "block";
@@ -358,15 +328,6 @@ function saveSettings() {
   } else {
     show_button.style.display = "none";
   }
-  // define objects
-  var twitterTag = {
-    name: "#",
-    value: tag,
-  };
-  var hashtag = {
-    name: "Hashtag",
-    value: hashtag_in.value,
-  };
   var sharebutton = {
     name: "Facebook, Twitter",
     value: sharebt,
@@ -394,11 +355,9 @@ function saveSettings() {
   // store the objects
   chrome.storage.local.set(
     {
-      twitterTag: twitterTag,
       sharebutton: sharebutton,
       qrcode: qrcode,
       mode: mode,
-      hashtag: hashtag,
       autocopy: autocopy,
       qrcodeurl: qrcodeurl
     },
@@ -416,17 +375,17 @@ function saveQRCode() {
     var canvas_draft = document.getElementById("qrcode-canvas-draft");
     var context = canvas_draft.getContext("2d");
 
-    canvas_draft.width = 200;
-    canvas_draft.height = 250;
+    canvas_draft.width = 410;
+    canvas_draft.height = 450;
 
     context.fillStyle = "white";
-    context.fillRect(0, 0, 220, 250);
-    context.drawImage(canvas, 32.5, 32.5);
+    context.fillRect(0, 0, 410, 450);
+    context.drawImage(canvas, 2.5, 2.5);
 
-    context.font = "16pt monospace";
+    context.font = "20pt monospace";
     context.fillStyle = "black";
     context.textAlign = "center";
-    context.fillText(urlshort, 100, 200);
+    context.fillText(urlshort, 202, 430);
 
     gh = canvas_draft.toDataURL('png');
   } else {
