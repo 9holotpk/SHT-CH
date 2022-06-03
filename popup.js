@@ -11,6 +11,7 @@ document.getElementById("complete").addEventListener("click", copy);
 document.getElementById("copped").addEventListener("click", copy);
 document.getElementById("tweetbt").addEventListener("click", shareToTW);
 document.getElementById("facebookbt").addEventListener("click", shareToFB);
+document.getElementById("donate").addEventListener("click", openDonate);
 
 // # Value
 let copy_now = false;
@@ -20,6 +21,7 @@ let urlshort = '';
 
 let tweetbt = '';
 let facebookbt = '';
+const paypalurl = 'https://paypal.me/9holo';
 
 let token = '';
 let domain = '';
@@ -283,6 +285,12 @@ function shareToTW() {
 function shareToFB() {
   chrome.tabs.create({
     url: facebookbt
+  });
+}
+
+function openDonate() {
+  chrome.tabs.create({
+    url: paypalurl
   });
 }
 
